@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مهامي اليومية | My Tasks</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;600;700;900&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --purple: #a78bfa;
+      --pink: #f472b6;
+      --blue: #60a5fa;
+      --green: #34d399;
+      --red: #fb7185;
+      --yellow: #fbbf24;
+      --font-ar: 'Cairo', sans-serif;
+      --font-en: 'Inter', sans-serif;
+    }
+
+    body {
+      font-family: var(--font-ar);
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 20% 0%, #1e1b4b 0%, #0f0c29 55%, #09090f 100%);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 32px 16px 60px;
+      overflow-x: hidden;
+      transition: direction .3s;
+    }
+
+    body.en {
+      font-family: var(--font-en);
+    }
+
+    /* Stars */
+    .stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: #fff;
+      animation: twinkle var(--d) ease-in-out infinite var(--delay);
+    }
+
+    @keyframes twinkle {
+
+      0%,
+      100% {
+        opacity: .12;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .75;
+        transform: scale(1.5)
+      }
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 580px;
+    }
+
+    /* Card */
+    .card {
+      background: rgba(255, 255, 255, .055);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, .11);
+      border-radius: 28px;
+      padding: 40px 36px 32px;
+      box-shadow: 0 40px 80px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .09);
+      position: relative;
+      transition: all .3s;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 29px;
+      background: linear-gradient(135deg, rgba(167, 139, 250, .25), rgba(244, 114, 182, .2), transparent 60%);
+      z-index: -1;
+      opacity: 0;
+      transition: opacity .4s;
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .header .icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 8px;
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 18px rgba(167, 139, 250, .65));
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(-2deg)
+      }
+
+      50% {
+        transform: translateY(-10px) rotate(2deg)
+      }
+    }
+
+    .header h1 {
+      font-size: 1.85rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fff 30%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      color: rgba(255, 255, 255, .4);
+      font-size: .85rem;
+      margin-top: 5px;
+    }
+
+    /* Top bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .dt-badges {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .dt-badge {
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 10px;
+      padding: 5px 12px;
+      font-size: .76rem;
+      color: rgba(255, 255, 255, .55);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    /* Control buttons group */
+    .ctrl-group {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    /* Language toggle */
+    .lang-btn {
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 10px;
+      padding: 5px 14px;
+      font-size: .78rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, .7);
+      cursor: pointer;
+      transition: all .25s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    .lang-btn:hover {
+      background: rgba(167, 139, 250, .2);
+      border-color: var(--purple);
+      color: #fff;
+    }
+
+    .lang-btn .lang-flag {
+      font-size: 1rem;
+    }
+
+    /* Sound btn */
+    .sound-btn {
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 10px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.05rem;
+      transition: all .25s;
+      flex-shrink: 0;
+    }
+
+    .sound-btn:hover {
+      background: rgba(167, 139, 250, .18);
+      border-color: var(--purple);
+    }
+
+    .sound-btn.muted {
+      filter: grayscale(1) opacity(.45);
+    }
+
+    /* Progress */
+    .progress-section {
+      margin-bottom: 22px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 9px;
+    }
+
+    .progress-header span {
+      font-size: .78rem;
+      color: rgba(255, 255, 255, .48);
+    }
+
+    .progress-pct {
+      font-weight: 700;
+      font-size: .95rem !important;
+      background: linear-gradient(90deg, var(--purple), var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .progress-wrap {
+      background: rgba(255, 255, 255, .08);
+      border-radius: 50px;
+      height: 10px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, .3);
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 50px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--purple), var(--pink), var(--blue));
+      background-size: 200% 100%;
+      transition: width .6s cubic-bezier(.34, 1.56, .64, 1);
+      animation: shimmer 2.5s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% center
+      }
+
+      100% {
+        background-position: -200% center
+      }
+    }
+
+    /* Add form */
+    .add-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid rgba(255, 255, 255, .09);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .add-form-row {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+    }
+
+    .task-input {
+      flex: 1;
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid rgba(255, 255, 255, .13);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: #eeeeff;
+      font-family: inherit;
+      font-size: .93rem;
+      font-weight: 600;
+      outline: none;
+      transition: all .25s;
+    }
+
+    .task-input::placeholder {
+      color: rgba(255, 255, 255, .3);
+    }
+
+    .task-input:focus {
+      border-color: var(--purple);
+      background: rgba(167, 139, 250, .1);
+      box-shadow: 0 0 0 3px rgba(167, 139, 250, .15);
+    }
+
+    .priority-select {
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid rgba(255, 255, 255, .13);
+      border-radius: 12px;
+      padding: 10px 10px;
+      color: #eeeeff;
+      font-family: inherit;
+      font-size: .8rem;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      transition: all .25s;
+    }
+
+    .priority-select:focus {
+      border-color: var(--purple);
+    }
+
+    .priority-select option {
+      background: #1e1b4b;
+      color: #eeeeff;
+    }
+
+    /* Emoji row */
+    .emoji-row {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .emoji-row label {
+      font-size: .76rem;
+      color: rgba(255, 255, 255, .38);
+      flex-shrink: 0;
+    }
+
+    .emoji-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 9px;
+      padding: 3px 7px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .emoji-btn:hover,
+    .emoji-btn.active {
+      background: rgba(167, 139, 250, .2);
+      border-color: var(--purple);
+      transform: scale(1.15);
+    }
+
+    .add-btn {
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      border: none;
+      border-radius: 12px;
+      padding: 10px 18px;
+      color: #fff;
+      font-family: inherit;
+      font-size: .88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .25s;
+      white-space: nowrap;
+      flex-shrink: 0;
+      box-shadow: 0 6px 20px rgba(167, 139, 250, .35);
+    }
+
+    .add-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(167, 139, 250, .5);
+    }
+
+    .add-btn:active {
+      transform: scale(.97);
+    }
+
+    /* Task list */
+    .task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 38px 20px;
+      color: rgba(255, 255, 255, .25);
+      font-size: .88rem;
+      display: none;
+    }
+
+    .empty-state span {
+      font-size: 2.4rem;
+      display: block;
+      margin-bottom: 10px;
+      opacity: .4;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid rgba(255, 255, 255, .09);
+      border-radius: 18px;
+      padding: 13px 15px;
+      transition: transform .25s, box-shadow .25s, border-color .25s, background .25s, opacity .35s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .task-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(167, 139, 250, .1), rgba(244, 114, 182, .07));
+      opacity: 0;
+      transition: opacity .25s;
+      pointer-events: none;
+    }
+
+    .task-item:hover::after {
+      opacity: 1;
+    }
+
+    .task-item:hover {
+      transform: translateY(-2px) scale(1.005);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .3), 0 0 0 1px rgba(167, 139, 250, .22);
+      border-color: rgba(167, 139, 250, .32);
+      cursor: pointer;
+    }
+
+    .task-item.done {
+      background: rgba(52, 211, 153, .05);
+      border-color: rgba(52, 211, 153, .18);
+    }
+
+    .task-item.done::after {
+      background: linear-gradient(135deg, rgba(52, 211, 153, .07), rgba(96, 165, 250, .05));
+      opacity: 1;
+    }
+
+    .task-item.done .task-text {
+      text-decoration: line-through;
+      color: rgba(255, 255, 255, .3);
+    }
+
+    /* dragging */
+    .task-item[draggable=true] {
+      cursor: grab;
+    }
+
+    .task-item.dragging {
+      opacity: .4;
+      cursor: grabbing;
+    }
+
+    .task-item.drag-over {
+      border-color: var(--purple) !important;
+      background: rgba(167, 139, 250, .1) !important;
+    }
+
+    .task-item.pop {
+      animation: popAnim .35s cubic-bezier(.36, .07, .19, .97) both;
+    }
+
+    @keyframes popAnim {
+      0% {
+        transform: scale(1)
+      }
+
+      40% {
+        transform: scale(1.055)
+      }
+
+      70% {
+        transform: scale(.97)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    .task-item.unpop {
+      animation: unpopAnim .25s ease both;
+    }
+
+    @keyframes unpopAnim {
+      0% {
+        transform: scale(1)
+      }
+
+      50% {
+        transform: scale(.96)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    .task-item.removing {
+      animation: removeAnim .35s ease forwards;
+    }
+
+    @keyframes removeAnim {
+      to {
+        opacity: 0;
+        transform: translateX(60px) scale(.9);
+      }
+    }
+
+    .drag-handle {
+      font-size: .88rem;
+      color: rgba(255, 255, 255, .2);
+      cursor: grab;
+      flex-shrink: 0;
+      padding: 2px 3px;
+      transition: color .2s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .task-item:hover .drag-handle {
+      color: rgba(255, 255, 255, .45);
+    }
+
+    .task-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: #fff;
+      font-weight: 700;
+      font-size: .8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform .3s;
+      box-shadow: 0 4px 12px rgba(167, 139, 250, .3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .task-item.done .task-number {
+      background: linear-gradient(135deg, var(--green), var(--blue));
+      box-shadow: 0 4px 12px rgba(52, 211, 153, .3);
+    }
+
+    .task-item:hover .task-number {
+      transform: rotate(10deg) scale(1.1);
+    }
+
+    .task-emoji {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      transition: transform .3s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .task-item:hover .task-emoji {
+      transform: scale(1.2);
+    }
+
+    .task-text {
+      flex: 1;
+      font-size: .94rem;
+      font-weight: 600;
+      color: #eeeeff;
+      transition: color .3s;
+      position: relative;
+      z-index: 1;
+      word-break: break-word;
+    }
+
+    .priority-tag {
+      font-size: .65rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      flex-shrink: 0;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+      white-space: nowrap;
+    }
+
+    .p-high {
+      background: rgba(248, 113, 113, .18);
+      color: #fb7185;
+      border: 1px solid rgba(248, 113, 113, .22);
+    }
+
+    .p-medium {
+      background: rgba(251, 191, 36, .14);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, .2);
+    }
+
+    .p-low {
+      background: rgba(52, 211, 153, .14);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, .2);
+    }
+
+    .check-box {
+      width: 27px;
+      height: 27px;
+      border-radius: 9px;
+      border: 2px solid rgba(255, 255, 255, .2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all .3s;
+      font-size: .9rem;
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .task-item.done .check-box {
+      background: linear-gradient(135deg, var(--green), var(--blue));
+      border-color: transparent;
+      box-shadow: 0 0 16px rgba(52, 211, 153, .45);
+      animation: checkPop .4s cubic-bezier(.36, .07, .19, .97) both;
+    }
+
+    @keyframes checkPop {
+      0% {
+        transform: scale(.5) rotate(-20deg)
+      }
+
+      60% {
+        transform: scale(1.2) rotate(5deg)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    .delete-btn {
+      width: 27px;
+      height: 27px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: rgba(255, 255, 255, .22);
+      font-size: .82rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .22s;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .delete-btn:hover {
+      background: rgba(251, 113, 133, .15);
+      border-color: rgba(251, 113, 133, .3);
+      color: var(--red);
+    }
+
+    /* Stats */
+    .stats-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .stat-box {
+      flex: 1;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 13px;
+      padding: 11px 8px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 1.35rem;
+      font-weight: 900;
+      display: block;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-num.green {
+      background: linear-gradient(135deg, var(--green), var(--blue));
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .stat-num.yellow {
+      background: linear-gradient(135deg, var(--yellow), var(--pink));
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: .7rem;
+      color: rgba(255, 255, 255, .36);
+      margin-top: 2px;
+      display: block;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid rgba(255, 255, 255, .12);
+      color: rgba(255, 255, 255, .62);
+      border-radius: 13px;
+      padding: 9px 18px;
+      font-family: inherit;
+      font-size: .84rem;
+      cursor: pointer;
+      transition: all .25s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: rgba(167, 139, 250, .18);
+      border-color: var(--purple);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .btn-all {
+      background: linear-gradient(135deg, rgba(52, 211, 153, .14), rgba(96, 165, 250, .12));
+      border-color: rgba(52, 211, 153, .22);
+      color: var(--green);
+    }
+
+    .btn-all:hover {
+      background: linear-gradient(135deg, rgba(52, 211, 153, .28), rgba(96, 165, 250, .24));
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .btn-clear {
+      background: rgba(251, 113, 133, .1);
+      border-color: rgba(251, 113, 133, .18);
+      color: var(--red);
+    }
+
+    .btn-clear:hover {
+      background: rgba(251, 113, 133, .22);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    /* ── Celebration banner ── */
+    .celebration {
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-align: center;
+      min-height: 34px;
+      padding: 6px 14px;
+      border-radius: 12px;
+      opacity: 0;
+      transition: opacity .45s, color .45s, background .45s;
+    }
+
+    .celebration.show {
+      opacity: 1;
+    }
+
+    /* 5 celebration themes */
+    .cel-fireworks {
+      color: #fbbf24;
+      background: rgba(251, 191, 36, .1);
+      border: 1px solid rgba(251, 191, 36, .2);
+      animation: celebBounce 1s ease-in-out infinite alternate;
+    }
+
+    .cel-golden {
+      color: #f59e0b;
+      background: rgba(245, 158, 11, .1);
+      border: 1px solid rgba(245, 158, 11, .2);
+      animation: celebShake .7s ease-in-out infinite alternate;
+    }
+
+    .cel-rainbow {
+      animation: celebRainbow 1.2s linear infinite;
+      border: 1px solid rgba(255, 255, 255, .15);
+    }
+
+    .cel-neon {
+      color: #a78bfa;
+      background: rgba(167, 139, 250, .1);
+      border: 1px solid rgba(167, 139, 250, .25);
+      animation: celebNeon 1s ease-in-out infinite alternate;
+    }
+
+    .cel-snow {
+      color: #bae6fd;
+      background: rgba(186, 230, 253, .08);
+      border: 1px solid rgba(186, 230, 253, .2);
+      animation: celebFloat 1.3s ease-in-out infinite alternate;
+    }
+
+    @keyframes celebBounce {
+      from {
+        transform: scale(1)
+      }
+
+      to {
+        transform: scale(1.06)
+      }
+    }
+
+    @keyframes celebShake {
+      from {
+        transform: rotate(-1.5deg)
+      }
+
+      to {
+        transform: rotate(1.5deg)
+      }
+    }
+
+    @keyframes celebRainbow {
+      0% {
+        color: #f87171
+      }
+
+      20% {
+        color: #fbbf24
+      }
+
+      40% {
+        color: #34d399
+      }
+
+      60% {
+        color: #60a5fa
+      }
+
+      80% {
+        color: #a78bfa
+      }
+
+      100% {
+        color: #f472b6
+      }
+    }
+
+    @keyframes celebNeon {
+      from {
+        text-shadow: 0 0 8px #a78bfa, 0 0 20px #f472b6
+      }
+
+      to {
+        text-shadow: 0 0 20px #a78bfa, 0 0 40px #f472b6, 0 0 60px #60a5fa
+      }
+    }
+
+    @keyframes celebFloat {
+      from {
+        transform: translateY(0)
+      }
+
+      to {
+        transform: translateY(-5px)
+      }
+    }
+
+    /* ── Full-screen flash overlay ── */
+    .cel-flash {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      pointer-events: none;
+      animation: flashAnim .6s ease-out forwards;
+    }
+
+    @keyframes flashAnim {
+      0% {
+        opacity: .55
+      }
+
+      100% {
+        opacity: 0
+      }
+    }
+
+    /* ── Particles ── */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      animation: fall var(--dur) var(--ease, ease-in) forwards;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-20px) rotate(0deg) scale(1);
+        opacity: 1
+      }
+
+      100% {
+        transform: translateY(105vh) rotate(720deg) scale(.3);
+        opacity: 0
+      }
+    }
+
+    /* snow floats sideways */
+    .particle.snow {
+      animation: snowFall var(--dur) linear forwards;
+    }
+
+    @keyframes snowFall {
+      0% {
+        transform: translateY(-20px) translateX(0) rotate(0deg);
+        opacity: 1
+      }
+
+      50% {
+        transform: translateY(50vh) translateX(40px) rotate(180deg);
+        opacity: .8
+      }
+
+      100% {
+        transform: translateY(105vh) translateX(-20px) rotate(360deg);
+        opacity: 0
+      }
+    }
+
+    /* Ripple */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(167, 139, 250, .3);
+      transform: scale(0);
+      animation: rippleAnim .5s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes rippleAnim {
+      to {
+        transform: scale(4);
+        opacity: 0
+      }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: rgba(30, 27, 75, .95);
+      border: 1px solid rgba(167, 139, 250, .3);
+      border-radius: 14px;
+      padding: 12px 24px;
+      color: #eeeeff;
+      font-size: .86rem;
+      font-weight: 600;
+      backdrop-filter: blur(16px);
+      z-index: 1000;
+      transition: transform .35s cubic-bezier(.34, 1.56, .64, 1), opacity .3s;
+      opacity: 0;
+      pointer-events: none;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(167, 139, 250, .35);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="stars" id="stars"></div>
+
+  <div class="wrapper">
+    <div class="card">
+
+      <!-- Header -->
+      <div class="header">
+        <span class="icon">📋</span>
+        <h1 data-i18n="title"></h1>
+        <p data-i18n="subtitle"></p>
+      </div>
+
+      <!-- Top bar -->
+      <div class="topbar">
+        <div class="dt-badges">
+          <div class="dt-badge">🗓️ <span id="dateDisplay"></span></div>
+          <div class="dt-badge">🕐 <span id="timeDisplay"></span></div>
+        </div>
+        <div class="ctrl-group">
+          <!-- Language Toggle -->
+          <button class="lang-btn" id="langBtn" onclick="toggleLang()">
+            <span class="lang-flag">🇺🇸</span>
+            <span id="langLabel">English</span>
+          </button>
+          <!-- Sound -->
+          <button class="sound-btn" id="soundBtn">🔊</button>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-section">
+        <div class="progress-header">
+          <span id="progressLabel"></span>
+          <span class="progress-pct" id="progressPct">0%</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-fill" id="progressBar"></div>
+        </div>
+      </div>
+
+      <!-- Add Form -->
+      <div class="add-form">
+        <div class="add-form-row">
+          <input class="task-input" id="taskInput" type="text" maxlength="80" autocomplete="off"
+            onkeydown="if(event.key==='Enter')addTask()" />
+          <select class="priority-select" id="prioritySelect">
+            <option value="high" data-i18n="prioHigh"></option>
+            <option value="medium" selected data-i18n="prioMedium"></option>
+            <option value="low" data-i18n="prioLow"></option>
+          </select>
+          <button class="add-btn" onclick="addTask()" data-i18n="addBtn"></button>
+        </div>
+        <div class="emoji-row">
+          <label data-i18n="pickEmoji"></label>
+          <button class="emoji-btn active" onclick="selectEmoji(this,'✅')">✅</button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'🎯')">🎯</button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'📚')">📚</button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'💪')">💪</button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'🏃')">🏃</button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'🧹')">🧹</button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'🚿')">🚿</button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'👕')">👕</button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'📅')">📅</button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'🌙')">🌙</button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'🍎')">🍎</button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'💊')">💊</button>
+        </div>
+      </div>
+
+      <!-- Task List -->
+      <ul class="task-list" id="taskList"></ul>
+      <div class="empty-state" id="emptyState">
+        <span>🗂️</span>
+        <span data-i18n="emptyState"></span>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-box">
+          <span class="stat-num" id="statTotal">0</span>
+          <span class="stat-label" data-i18n="statTotal"></span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num green" id="statDone">0</span>
+          <span class="stat-label" data-i18n="statDone"></span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num yellow" id="statRem">0</span>
+          <span class="stat-label" data-i18n="statRem"></span>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="btn-row">
+          <button class="btn btn-all" onclick="completeAll()" data-i18n="btnAll"></button>
+          <button class="btn" onclick="resetAll()" data-i18n="btnReset"></button>
+          <button class="btn btn-clear" onclick="clearDone()" data-i18n="btnClear"></button>
+        </div>
+        <div class="celebration" id="celebration" data-i18n="celebration"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* ══════════════════════════════════════
+       i18n — Translations
+    ══════════════════════════════════════ */
+    const STRINGS = {
+      ar: {
+        title: 'مهامي اليومية',
+        subtitle: 'نهارك منظم = حياتك أجمل ✨',
+        inputPlaceholder: '✍️ أضف مهمة جديدة...',
+        prioHigh: '🔴 عالي',
+        prioMedium: '🟡 متوسط',
+        prioLow: '🟢 منخفض',
+        addBtn: '+ أضف',
+        pickEmoji: 'اختر أيقونة:',
+        emptyState: 'لا توجد مهام — أضف مهمتك الأولى!',
+        statTotal: 'إجمالي المهام',
+        statDone: 'مكتملة',
+        statRem: 'متبقية',
+        btnAll: '✅ أكمل الكل',
+        btnReset: '🔄 إعادة تعيين',
+        btnClear: '🗑️ احذف المكتملة',
+        celebrations: [
+          '🎆 يا سلام! كملت كل مهامك زي الصاروخ! 🎆',
+          '🥇 أحسنت يا بطل! إنت فعلاً متميز! 🥇',
+          '🌈 ماشاء الله! يوم مكتمل ومميز! 🌈',
+          '💜 رهيب! شخص زيك يستاهل كل خير! 💜',
+          '❄️ برافو عليك! انجزت كل حاجة النهارده! ❄️'
+        ],
+        progressOf: (d, t) => `${d} من ${t} مهام مكتملة`,
+        toastAdded: '✅ تمت إضافة المهمة!',
+        toastDeleted: '🗑️ تم حذف المهمة',
+        toastClearDone: '🗑️ تم حذف المهام المكتملة',
+        toastReset: '🔄 تم إعادة تعيين المهام',
+        toastNoDone: 'لا توجد مهام مكتملة',
+        pHigh: 'عالي',
+        pMedium: 'متوسط',
+        pLow: 'منخفض',
+        langLabel: 'English',
+        langFlag: '🇺🇸',
+        pageTitle: 'مهامي اليومية',
+      },
+      en: {
+        title: 'My Daily Tasks',
+        subtitle: 'Stay organized, stay awesome ✨',
+        inputPlaceholder: '✍️ Add a new task...',
+        prioHigh: '🔴 High',
+        prioMedium: '🟡 Medium',
+        prioLow: '🟢 Low',
+        addBtn: '+ Add',
+        pickEmoji: 'Pick icon:',
+        emptyState: 'No tasks yet — add your first one!',
+        statTotal: 'Total Tasks',
+        statDone: 'Completed',
+        statRem: 'Remaining',
+        btnAll: '✅ Complete All',
+        btnReset: '🔄 Reset All',
+        btnClear: '🗑️ Clear Done',
+        celebrations: [
+          '🎆 Boom! You crushed every single task today! 🎆',
+          '🥇 Gold-medal performance! You are unstoppable! 🥇',
+          '🌈 Incredible! A perfect rainbow of productivity! 🌈',
+          '💜 Outstanding! You truly deserve this moment! 💜',
+          '❄️ Cool as ice — every task done flawlessly! ❄️'
+        ],
+        progressOf: (d, t) => `${d} of ${t} tasks completed`,
+        toastAdded: '✅ Task added!',
+        toastDeleted: '🗑️ Task deleted',
+        toastClearDone: '🗑️ Completed tasks cleared',
+        toastReset: '🔄 All tasks reset',
+        toastNoDone: 'No completed tasks',
+        pHigh: 'High',
+        pMedium: 'Medium',
+        pLow: 'Low',
+        langLabel: 'عربي',
+        langFlag: '🇸🇦',
+        pageTitle: 'My Daily Tasks',
+      }
+    };
+
+    let lang = localStorage.getItem('taskLang') || 'ar';
+
+    function t(key, ...args) {
+      const val = STRINGS[lang][key];
+      return typeof val === 'function' ? val(...args) : val;
+    }
+
+    function applyLang() {
+      const isAr = lang === 'ar';
+      const root = document.getElementById('htmlRoot');
+      root.setAttribute('lang', lang);
+      root.setAttribute('dir', isAr ? 'rtl' : 'ltr');
+      document.body.classList.toggle('en', !isAr);
+      document.title = t('pageTitle');
+
+      // static i18n elements
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (STRINGS[lang][key] !== undefined && typeof STRINGS[lang][key] !== 'function')
+          el.textContent = t(key);
+      });
+
+      // input placeholder
+      document.getElementById('taskInput').placeholder = t('inputPlaceholder');
+
+      // priority options
+      const sel = document.getElementById('prioritySelect');
+      sel.options[0].text = t('prioHigh');
+      sel.options[1].text = t('prioMedium');
+      sel.options[2].text = t('prioLow');
+
+      // lang button
+      document.getElementById('langLabel').textContent = t('langLabel');
+      document.querySelector('.lang-flag').textContent = t('langFlag');
+
+      localStorage.setItem('taskLang', lang);
+      updateProgress();
+      render();
+    }
+
+    function toggleLang() {
+      lang = lang === 'ar' ? 'en' : 'ar';
+      // small spin on lang btn
+      const btn = document.getElementById('langBtn');
+      btn.style.transform = 'scale(.88)';
+      setTimeout(() => { btn.style.transform = ''; playCheck(); }, 150);
+      applyLang();
+    }
+
+    /* ══════════════════════════════════════
+       Stars
+    ══════════════════════════════════════ */
+    (() => {
+      const c = document.getElementById('stars');
+      for (let i = 0; i < 80; i++) {
+        const s = document.createElement('div'); s.className = 'star';
+        const sz = Math.random() * 2.4 + .5;
+        s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random() * 100}%;left:${Math.random() * 100}%;--d:${(Math.random() * 4 + 2).toFixed(1)}s;--delay:-${(Math.random() * 5).toFixed(1)}s`;
+        c.appendChild(s);
+      }
+    })();
+
+    /* ══════════════════════════════════════
+       Clock
+    ══════════════════════════════════════ */
+    function updateClock() {
+      const n = new Date();
+      const daysAr = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+      const daysEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const monthsAr = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+      const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      if (lang === 'ar') {
+        document.getElementById('dateDisplay').textContent = `${daysAr[n.getDay()]} ${n.getDate()} ${monthsAr[n.getMonth()]}`;
+        const h = n.getHours(), m = n.getMinutes(), s = n.getSeconds();
+        document.getElementById('timeDisplay').textContent = `${h % 12 || 12}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')} ${h >= 12 ? 'م' : 'ص'}`;
+      } else {
+        document.getElementById('dateDisplay').textContent = `${daysEn[n.getDay()]}, ${monthsEn[n.getMonth()]} ${n.getDate()}`;
+        const h = n.getHours(), m = n.getMinutes(), s = n.getSeconds();
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        document.getElementById('timeDisplay').textContent = `${h % 12 || 12}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')} ${ampm}`;
+      }
+    }
+    updateClock(); setInterval(updateClock, 1000);
+
+    /* ══════════════════════════════════════
+       Audio
+    ══════════════════════════════════════ */
+    let actx = null, soundOn = true;
+    function getCtx() { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); return actx; }
+    function tone(freq, offset, dur, type = 'sine', vol = .15) {
+      const c = getCtx(), o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = type; o.frequency.setValueAtTime(freq, c.currentTime + offset);
+      g.gain.setValueAtTime(0, c.currentTime + offset);
+      g.gain.linearRampToValueAtTime(vol, c.currentTime + offset + .025);
+      g.gain.exponentialRampToValueAtTime(.001, c.currentTime + offset + dur);
+      o.start(c.currentTime + offset); o.stop(c.currentTime + offset + dur + .05);
+    }
+    function playCheck() { if (!soundOn) return;[[523, .1], [659, .2], [784, .3]].forEach(([f, t]) => tone(f, t, .35)); }
+    function playUncheck() { if (!soundOn) return; tone(380, 0, .1, 'triangle', .1); tone(260, .1, .25, 'triangle', .08); }
+    /* 5 celebration melodies */
+    const CEL_MELODIES = [
+      // 0 Fireworks — triumphant fanfare
+      [[523, 0], [659, .1], [784, .2], [1047, .3], [1319, .42], [1047, .55], [1319, .68], [1568, .82]],
+      // 1 Golden Rain — staircase arpeggios
+      [[392, 0], [494, .1], [587, .2], [698, .3], [880, .4], [698, .5], [587, .6], [880, .72]],
+      // 2 Rainbow — gentle ascending
+      [[262, 0], [330, .12], [392, .24], [523, .36], [659, .48], [784, .60], [1047, .74]],
+      // 3 Neon Party — bouncy dance
+      [[880, 0], [660, .1], [880, .2], [1047, .3], [660, .4], [880, .5], [1047, .62], [1319, .75]],
+      // 4 Snow — soft lullaby
+      [[392, 0], [330, .15], [262, .3], [330, .45], [392, .6], [523, .78]],
+    ];
+    function playCelebration(mode = 0) {
+      if (!soundOn) return;
+      const types = ['sine', 'triangle', 'sine', 'square', 'sine'];
+      CEL_MELODIES[mode].forEach(([f, t]) => tone(f, t, .38, types[mode], .14));
+    }
+    function playAdd() { if (!soundOn) return; tone(440, 0, .08, 'sine', .12); tone(660, .1, .2, 'sine', .1); }
+    function playDelete() { if (!soundOn) return; tone(300, 0, .12, 'sawtooth', .1); tone(180, .1, .3, 'sawtooth', .07); }
+    function playReset() { if (!soundOn) return; tone(350, 0, .15, 'triangle', .1); tone(220, .13, .35, 'triangle', .07); }
+
+    /* ══════════════════════════════════════
+       5 Celebration Effects
+    ══════════════════════════════════════ */
+    const CEL_MODES = [
+      // 0 🎆 Fireworks
+      {
+        cls: 'cel-fireworks',
+        flashColor: 'rgba(255,220,50,.18)',
+        spawn() { spawnParticles(90, ['#fbbf24', '#f59e0b', '#fde68a', '#fff', '#f87171', '#60a5fa'], false, false); }
+      },
+      // 1 🥇 Golden Rain
+      {
+        cls: 'cel-golden',
+        flashColor: 'rgba(251,191,36,.22)',
+        spawn() { spawnParticles(80, ['#fbbf24', '#f59e0b', '#fde047', '#fef08a', '#d97706'], false, true); }
+      },
+      // 2 🌈 Rainbow
+      {
+        cls: 'cel-rainbow',
+        flashColor: 'rgba(167,139,250,.15)',
+        spawn() { spawnParticles(100, ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa', '#f472b6', '#fff'], true, false); }
+      },
+      // 3 💜 Neon Party
+      {
+        cls: 'cel-neon',
+        flashColor: 'rgba(167,139,250,.28)',
+        spawn() { spawnParticles(85, ['#a78bfa', '#f472b6', '#60a5fa', '#c084fc', '#818cf8'], true, false); }
+      },
+      // 4 ❄️ Snow
+      {
+        cls: 'cel-snow',
+        flashColor: 'rgba(186,230,253,.18)',
+        spawn() { spawnSnow(80); }
+      },
+    ];
+
+    function spawnParticles(n, cols, allRound, tallBar) {
+      for (let i = 0; i < n; i++) {
+        const p = document.createElement('div'); p.className = 'particle';
+        const sz = tallBar ? Math.random() * 4 + 3 : Math.random() * 12 + 5;
+        const h = tallBar ? Math.random() * 18 + 8 : sz;
+        const br = allRound ? '50%' : (Math.random() > .5 ? '50%' : '3px');
+        p.style.cssText = `width:${sz}px;height:${h}px;left:${Math.random() * 100}vw;top:-20px;` +
+          `background:${cols[Math.floor(Math.random() * cols.length)]};border-radius:${br};` +
+          `--dur:${(Math.random() * 1.8 + 1).toFixed(2)}s;animation-delay:${(Math.random() * .7).toFixed(2)}s;`;
+        document.body.appendChild(p); setTimeout(() => p.remove(), 3200);
+      }
+    }
+
+    function spawnSnow(n) {
+      for (let i = 0; i < n; i++) {
+        const p = document.createElement('div'); p.className = 'particle snow';
+        const sz = Math.random() * 10 + 4;
+        p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random() * 100}vw;top:-20px;` +
+          `background:rgba(255,255,255,${(Math.random() * .5 + .5).toFixed(2)});border-radius:50%;` +
+          `--dur:${(Math.random() * 2 + 2).toFixed(2)}s;animation-delay:${(Math.random() * .8).toFixed(2)}s;`;
+        document.body.appendChild(p); setTimeout(() => p.remove(), 4000);
+      }
+    }
+
+    function flashScreen(color) {
+      const f = document.createElement('div'); f.className = 'cel-flash';
+      f.style.background = color;
+      document.body.appendChild(f); setTimeout(() => f.remove(), 700);
+    }
+
+    document.getElementById('soundBtn').addEventListener('click', function () {
+      soundOn = !soundOn;
+      this.textContent = soundOn ? '🔊' : '🔇';
+      this.classList.toggle('muted', !soundOn);
+      if (soundOn) playCheck();
+    });
+
+    /* ══════════════════════════════════════
+       Toast
+    ══════════════════════════════════════ */
+    let toastTimer;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg; el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2300);
+    }
+
+    /* ══════════════════════════════════════
+       Confetti
+    ══════════════════════════════════════ */
+    function spawnConfetti(n = 70) {
+      const cols = ['#a78bfa', '#f472b6', '#60a5fa', '#fbbf24', '#34d399', '#fb923c', '#f87171'];
+      for (let i = 0; i < n; i++) {
+        const p = document.createElement('div'); p.className = 'particle';
+        const sz = Math.random() * 11 + 5;
+        p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random() * 100}vw;top:-20px;background:${cols[Math.floor(Math.random() * cols.length)]};border-radius:${Math.random() > .5 ? '3px' : '50%'};--dur:${(Math.random() * 1.6 + 1.1).toFixed(2)}s;animation-delay:${(Math.random() * .6).toFixed(2)}s;`;
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 2800);
+      }
+    }
+
+    /* ══════════════════════════════════════
+       Ripple
+    ══════════════════════════════════════ */
+    function ripple(el, e) {
+      const r = el.getBoundingClientRect(), sz = Math.max(r.width, r.height) * .65;
+      const x = e.clientX - r.left - sz / 2, y = e.clientY - r.top - sz / 2;
+      const rp = document.createElement('span'); rp.className = 'ripple';
+      rp.style.cssText = `width:${sz}px;height:${sz}px;left:${x}px;top:${y}px`;
+      el.appendChild(rp); setTimeout(() => rp.remove(), 600);
+    }
+
+    /* ══════════════════════════════════════
+       Data & State
+    ══════════════════════════════════════ */
+    const DEFAULT_TASKS = [
+      { id: 1, text: 'نظف الأوضة', emoji: '🧹', priority: 'high', done: false },
+      { id: 2, text: 'استحمّ', emoji: '🚿', priority: 'high', done: false },
+      { id: 3, text: 'اغسل اللبس', emoji: '👕', priority: 'medium', done: false },
+      { id: 4, text: 'اعمل خطة لحياتك', emoji: '🎯', priority: 'high', done: false },
+      { id: 5, text: 'النهارده تخطيط', emoji: '📅', priority: 'medium', done: false },
+    ];
+    let tasks = [], nextId = 100, selectedEmoji = '✅', dragSrc = null;
+
+    function load() {
+      try {
+        const s = localStorage.getItem('myTasks');
+        if (s) { const d = JSON.parse(s); tasks = d.tasks; nextId = d.nextId || 100; }
+        else { tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS)); nextId = 100; }
+      } catch { tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS)); nextId = 100; }
+    }
+    function save() { localStorage.setItem('myTasks', JSON.stringify({ tasks, nextId })); }
+
+    /* ══════════════════════════════════════
+       Emoji picker
+    ══════════════════════════════════════ */
+    function selectEmoji(btn, e) {
+      document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active'); selectedEmoji = e;
+    }
+
+    /* ══════════════════════════════════════
+       Add Task
+    ══════════════════════════════════════ */
+    function addTask() {
+      const inp = document.getElementById('taskInput');
+      const text = inp.value.trim();
+      if (!text) { inp.focus(); inp.style.borderColor = 'var(--red)'; setTimeout(() => inp.style.borderColor = '', 800); return; }
+      const priority = document.getElementById('prioritySelect').value;
+      tasks.push({ id: nextId++, text, emoji: selectedEmoji, priority, done: false });
+      save(); inp.value = ''; render(); playAdd(); showToast(t('toastAdded'));
+    }
+
+    /* ══════════════════════════════════════
+       Toggle
+    ══════════════════════════════════════ */
+    function toggleTask(id, event) {
+      const tk = tasks.find(t => t.id === id); if (!tk) return;
+      const el = document.querySelector(`[data-id="${id}"]`);
+      if (el) ripple(el, event);
+      tk.done = !tk.done;
+      el.classList.remove('pop', 'unpop'); void el.offsetWidth;
+      if (tk.done) { el.classList.add('done', 'pop'); el.querySelector('.check-box').textContent = '✓'; playCheck(); }
+      else { el.classList.remove('done'); el.classList.add('unpop'); el.querySelector('.check-box').textContent = ''; playUncheck(); }
+      save(); updateProgress();
+    }
+
+    /* ══════════════════════════════════════
+       Delete
+    ══════════════════════════════════════ */
+    function deleteTask(id) {
+      const el = document.querySelector(`[data-id="${id}"]`);
+      if (!el) return;
+      el.classList.add('removing'); playDelete();
+      setTimeout(() => { tasks = tasks.filter(tk => tk.id !== id); save(); render(); showToast(t('toastDeleted')); }, 360);
+    }
+
+    /* ══════════════════════════════════════
+       Priority tag HTML
+    ══════════════════════════════════════ */
+    function prioTag(p) {
+      const cls = p === 'high' ? 'p-high' : p === 'medium' ? 'p-medium' : 'p-low';
+      const label = p === 'high' ? t('pHigh') : p === 'medium' ? t('pMedium') : t('pLow');
+      return `<span class="priority-tag ${cls}">${label}</span>`;
+    }
+
+    /* ══════════════════════════════════════
+       Render
+    ══════════════════════════════════════ */
+    function escHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    function render() {
+      const list = document.getElementById('taskList');
+      const empty = document.getElementById('emptyState');
+      document.querySelector('[data-i18n="emptyState"]').textContent = t('emptyState');
+      if (tasks.length === 0) { list.innerHTML = ''; empty.style.display = 'block'; updateProgress(); return; }
+      empty.style.display = 'none';
+
+      list.innerHTML = tasks.map((tk, i) => `
+    <li class="task-item${tk.done ? ' done' : ''}" data-id="${tk.id}"
+        draggable="true" onclick="toggleTask(${tk.id},event)">
+      <span class="drag-handle" onclick="event.stopPropagation()">⠿</span>
+      <div class="task-number">${i + 1}</div>
+      <span class="task-emoji">${tk.emoji}</span>
+      <span class="task-text">${escHtml(tk.text)}</span>
+      ${prioTag(tk.priority)}
+      <div class="check-box">${tk.done ? '✓' : ''}</div>
+      <button class="delete-btn" onclick="event.stopPropagation();deleteTask(${tk.id})" title="Delete">✕</button>
+    </li>`).join('');
+
+      // Drag & Drop
+      list.querySelectorAll('.task-item').forEach(el => {
+        el.addEventListener('dragstart', e => { dragSrc = el; el.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+        el.addEventListener('dragend', () => { el.classList.remove('dragging', 'drag-over'); dragSrc = null; });
+        el.addEventListener('dragover', e => { e.preventDefault(); if (dragSrc && dragSrc !== el) el.classList.add('drag-over'); });
+        el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+        el.addEventListener('drop', e => {
+          e.preventDefault(); el.classList.remove('drag-over');
+          if (!dragSrc || dragSrc === el) return;
+          const si = tasks.findIndex(t => t.id === +dragSrc.dataset.id);
+          const di = tasks.findIndex(t => t.id === +el.dataset.id);
+          if (si < 0 || di < 0) return;
+          const [moved] = tasks.splice(si, 1); tasks.splice(di, 0, moved);
+          save(); render();
+        });
+      });
+
+      updateProgress();
+    }
+
+    /* ══════════════════════════════════════
+       Progress
+    ══════════════════════════════════════ */
+    let lastWasAll = false, currentCelMode = 0;
+    function updateProgress() {
+      const total = tasks.length, done = tasks.filter(tk => tk.done).length;
+      const pct = total ? Math.round(done / total * 100) : 0;
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('progressLabel').textContent = t('progressOf', done, total);
+      document.getElementById('progressPct').textContent = pct + '%';
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statDone').textContent = done;
+      document.getElementById('statRem').textContent = total - done;
+      const cel = document.getElementById('celebration');
+      const allDone = total > 0 && done === total;
+
+      if (allDone && !lastWasAll) {
+        // Pick a random celebration mode
+        currentCelMode = Math.floor(Math.random() * CEL_MODES.length);
+        const mode = CEL_MODES[currentCelMode];
+        // Update banner
+        const msgs = STRINGS[lang].celebrations;
+        cel.textContent = msgs[currentCelMode];
+        // Remove old cel classes, apply new
+        CEL_MODES.forEach(m => cel.classList.remove(m.cls));
+        cel.classList.add(mode.cls);
+        // Fire effects
+        flashScreen(mode.flashColor);
+        mode.spawn();
+        playCelebration(currentCelMode);
+      } else if (!allDone) {
+        // Reset banner text to first msg when not done
+        cel.textContent = STRINGS[lang].celebrations[0];
+        CEL_MODES.forEach(m => cel.classList.remove(m.cls));
+      }
+      cel.classList.toggle('show', allDone);
+      lastWasAll = allDone;
+    }
+
+    /* ══════════════════════════════════════
+       Buttons
+    ══════════════════════════════════════ */
+    function completeAll() {
+      const undone = tasks.filter(tk => !tk.done); if (!undone.length) return;
+      undone.forEach((tk, i) => setTimeout(() => {
+        tk.done = true; save();
+        const el = document.querySelector(`[data-id="${tk.id}"]`);
+        if (el) { el.classList.add('done', 'pop'); el.querySelector('.check-box').textContent = '✓'; }
+        if (i === undone.length - 1) updateProgress();
+      }, i * 110));
+      playCheck();
+    }
+    function resetAll() { tasks.forEach(tk => tk.done = false); save(); render(); playReset(); showToast(t('toastReset')); }
+    function clearDone() {
+      if (!tasks.some(tk => tk.done)) { showToast(t('toastNoDone')); return; }
+      tasks = tasks.filter(tk => !tk.done); save(); render(); playDelete(); showToast(t('toastClearDone'));
+    }
+
+    /* ══════════════════════════════════════
+       Init
+    ══════════════════════════════════════ */
+    load();
+    applyLang();
+  </script>
+</body>
+
+</html>
